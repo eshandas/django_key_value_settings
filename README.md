@@ -36,6 +36,12 @@ INSTALLED_APPS = [
 ]
 ```
 
+* Run migrations
+
+```
+python manage.py migrate
+```
+
 ## Properties
 
 * **key:** A unique string to identify the setting.
