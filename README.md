@@ -18,7 +18,7 @@ The settings are stored in the database.
 
 ## Installation
 
-* Using pip
+Using pip
 
 ```
 pip install kv_settings
@@ -107,3 +107,7 @@ setting = KeyValueSetting.objects.get_or_create_dict_value(key='some_setting')
 setting.value = {'foo': 'bar'}
 setting.save()
 ```
+
+## Future
+
+Support for in-memory database might be provided.
