@@ -21,7 +21,7 @@ The settings are stored in the database.
 * Using pip
 
 ```
-pip install kv-settings
+pip install kv_settings
 ```
 
 ## Setup
