@@ -4,7 +4,7 @@ The settings are stored in the database.
 
 ## Version
 
-1.0.0
+2.0.0
 
 ## Features
 
@@ -58,54 +58,25 @@ Import it by
 from kv_settings.models import KeyValueSetting
 ```
 
-Create a setting
+Create and fetch a setting
 
 ```
+# Create or update an existing setting by
+setting = KeyValueSetting.objects.set(key='some_setting', value={'foo': 'bar'})
+
+# It can also be created like django model object
 setting = KeyValueSetting(key='some_setting', value={'foo': 'bar'})
 setting.save()
 
 # Get the value back
-setting.value
->>> '{"foo": "bar"}'
-setting.value_as_dict
->>> {u'foo': u'bar'}
-```
-
-Fetch a setting
-
-```
-# Like normal Django model
-setting = KeyValueSetting.objects.get_value(key='some_setting')
-setting.value
->>> '{"foo": "bar"}'
-setting.value_as_dict
->>> {u'foo': u'bar'}
-
-# Get the value only
 setting = KeyValueSetting.objects.get_value(key='some_setting')
 setting
->>> '{"foo": "bar"}'
+>>> {"foo": "bar"}
 
-# Raises ValueError if the value is not dict serializable
-setting = KeyValueSetting.objects.get_dict_value(key='some_setting')
+# Or get the model obj
+setting = KeyValueSetting.objects.get(key='some_setting')
 setting
->>> {u'foo': u'bar'}
-```
-
-To avoid ValueError being raised, following can be used
-
-```
-setting = KeyValueSetting.objects.get_dict_value_or_none(key='some_setting')
->>> {u'foo': u'bar'}  # If a valid dict
->>> None  # If non serializable
-```
-
-A new setting can be created if doesn't exist already
-
-```
-setting = KeyValueSetting.objects.get_or_create_dict_value(key='some_setting')
-setting.value = {'foo': 'bar'}
-setting.save()
+>>> <KeyValueSetting: some_setting>
 ```
 
 ## Future

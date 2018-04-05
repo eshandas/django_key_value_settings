@@ -1,11 +1,30 @@
-from __future__ import unicode_literals
-
 import json
+from json.decoder import JSONDecodeError
 
 from django.db import models
 
 
 class KeyValueSettingManager(models.Manager):
+    def set(self, key, value):
+        """
+        Creates or updates a setting by the key.
+
+        Inputs:
+
+            key (str) = The key of the setting
+            value (str or dict) = The setting's value
+
+        Returns:
+
+            KeyValueSetting (obj) = The setting object
+        """
+        # if isinstance(value, dict):
+        #     value = json.dumps(value)
+        setting, created = self.update_or_create(
+            key=key,
+            defaults={'value': value})
+        return setting
+
     def get_value(self, key):
         """
         Gets a setting's value by the key.
@@ -16,93 +35,13 @@ class KeyValueSettingManager(models.Manager):
 
         Returns:
 
-            value (str) = The setting's value
-        """
-        key_value_setting = super(KeyValueSettingManager, self).get_queryset().get(key=key)
-        return key_value_setting.value
-
-    def get_dict_value(self, key):
-        """
-        Gets a setting's value by the key. The value is returned as a dict. If the
-        value is not a valid JSON string, ValueError is raised.
-
-        Inputs:
-
-            key = The key of the setting
-
-        Returns:
-
-            value (dict) = The setting's value
-        """
-        key_value_setting = super(KeyValueSettingManager, self).get_queryset().get(key=key)
-        return json.loads(key_value_setting.value)
-
-    def get_dict_value_or_none(self, key):
-        """
-        Gets a setting's value by the key. If the value is not a valid JSON string,
-        None is returned, else a dict is returned.
-
-        Inputs:
-
-            key = The key of the setting
-
-        Returns:
-
-            value (None or dict) = The setting's value
+            value (str or dict) = The setting's value
         """
         key_value_setting = super(KeyValueSettingManager, self).get_queryset().get(key=key)
         try:
             return json.loads(key_value_setting.value)
-        except ValueError:
-            return None
-
-    def get_or_create_value(self, key):
-        """
-        Gets a setting's value by the key. If the setting with the key doesn't exist,
-        a setting is created with value as an empty string and then the value is
-        returned as a string.
-
-        Inputs:
-
-            key = The key of the setting
-
-        Returns:
-
-            value (str) = The setting's value
-            created (bool) = If the setting was created, True is returned, else False
-        """
-        created = False
-        try:
-            key_value_setting = super(KeyValueSettingManager, self).get_queryset().get(key=key)
-        except KeyValueSetting.DoesNotExist:
-            key_value_setting = KeyValueSetting(key=key, value='')
-            created = True
-            key_value_setting.save()
-        return key_value_setting.value, created
-
-    def get_or_create_dict_value(self, key):
-        """
-        Gets a setting's value by the key. If the setting with the keydoesn't exist,
-        a setting is created with value as an empty string and then the value is
-        returned as a dict.
-
-        Inputs:
-
-            key = The key of the setting
-
-        Returns:
-
-            value (dict) = The setting's value
-            created (bool) = If the setting was created, True is returned, else False
-        """
-        created = False
-        try:
-            key_value_setting = super(KeyValueSettingManager, self).get_queryset().get(key=key)
-        except KeyValueSetting.DoesNotExist:
-            key_value_setting = KeyValueSetting(key=key, value='{}')
-            created = True
-            key_value_setting.save()
-        return json.loads(key_value_setting.value), created
+        except (JSONDecodeError, ValueError):
+            return key_value_setting.value
 
 
 class KeyValueSetting(models.Model):
@@ -118,6 +57,29 @@ class KeyValueSetting(models.Model):
         auto_now=True)
 
     objects = KeyValueSettingManager()
+
+    @property
+    def get_value(self):
+        """
+        Gets a setting's value.
+
+        Inputs:
+
+            key = The key of the setting
+
+        Returns:
+
+            value (str or dict) = The setting's value
+        """
+        try:
+            return json.loads(self.value)
+        except (JSONDecodeError, ValueError):
+            return self.value
+
+    def save(self, *args, **kwargs):
+        if isinstance(self.value, dict):
+            self.value = json.dumps(self.value)
+        return super(KeyValueSetting, self).save(*args, **kwargs)
 
     def __str__(self):
         return self.key
