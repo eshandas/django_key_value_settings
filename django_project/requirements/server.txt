@@ -16,7 +16,7 @@ django-rest-swagger==2.1.2
 # django_rest_swagger_enhancer==0.0.2
 gunicorn==19.7.1
 # kv_settings==1.0.0
-Pillow==5.0.0
+Pillow==6.2.0
 pytz==2018.3
 redis==2.10.6
 requests==2.18.4
