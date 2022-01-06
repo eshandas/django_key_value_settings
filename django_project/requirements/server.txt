@@ -1,6 +1,6 @@
 anyjson==0.3.3
 boto3==1.6.21
-celery==4.1.0
+celery==5.2.2
 circus==0.14.0
 coreapi==2.3.3
 coreschema==0.0.4
